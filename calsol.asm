@@ -7,6 +7,7 @@ SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
     Text  db "Hola buenas"
+    Text2 db "Adios"
 Datos Ends                  ; Finaliza la definición del segmento "Datos".
 
 
