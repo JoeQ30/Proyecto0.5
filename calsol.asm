@@ -6,14 +6,39 @@ SSeg Segment
 SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
-    Text  db "Hola buenas"
-    Text2 db "Adios"
+    hAmanecer       db 5 
+    minAmanecer     db 49
+    hOcaso          db 18 
+    minOcaso        db 22
+    diferenciaHoras db ?
+    diferenciaMin   db ?
 Datos Ends                  ; Finaliza la definición del segmento "Datos".
 
 
 Codigo Segment              ; Define un segmento llamado "Codigo" para el código ensamblador.
 assume cs:Codigo, ds:Datos  ; Asocia los registros de segmento CS (código) y DS (datos) a los segmentos definidos.
-   
+    Imprime Proc Far
+            mov ah, 09h     ; paso parametro por registro ;mov dx, offset Mensaje
+            int 21h
+            ret 2*1
+        Imprime Endp
+
+    ;Procedimiento para sacar cuántas horas hay entre el amanecer y el ocaso
+    Diferencia PROC Far
+        mov ax, hOcaso
+        sub ax, hAmanecer
+        mov diferenciaHoras, ax
+        mov ax, minOcaso
+        sub ax, minAmanecer
+
+        cmp ax, 60
+        jg mayor
+
+       mayor:
+        add diferenciaHoras, 1
+        sub ax, 60
+        
+    Diferencia ENDP
 
 inicio:
     mov     ax, Datos
