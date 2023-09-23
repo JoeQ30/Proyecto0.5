@@ -73,32 +73,33 @@ assume cs:Codigo, ds:Datos  ; Asocia los registros de segmento CS (código) y DS
             ; Convertir horas a minutos y agregar minutos
             mov ax, hOcaso
             mov bx, 60
-            call multiplicar    ;Procedimiento que hace la multplicacion, el resultado queda en el dx
+            call multiplicar                ; Pasamos la hora del Ocaso a minutos
             xor ax,ax
             add ax,minOcaso
-            add ax, dx  ; Sumar minutos
-            mov OcasoEnMinutos, ax      ;Se suma el resultado de la multiplicacion
+            add ax, dx                      ; Sumar minutos
+            mov OcasoEnMinutos, ax          ; Se suma el resultado de la multiplicacion
             
             mov ax, hAmanecer
             mov bx, 60
-            call multiplicar
+            call multiplicar                ; Pasamos la hora del Amanecer a minutos
             xor ax,ax
             add ax,minAmanecer
-            add ax, dx  ; Sumar minutos
-            mov AmanecerEnMinutos, ax      ;Se suma el resultado de la multiplicacion
+            add ax, dx                      ; Sumar minutos
+            mov AmanecerEnMinutos, ax       ; Se suma el resultado de la multiplicacion
             
             ;restar las horas previamente convertidas a minutos
             mov ax, OcasoEnMinutos
-            sub ax, AmanecerEnMinutos
-            mov diferenciaMin, ax  ; Aquí tienes la diferencia en horas
+            sub ax, AmanecerEnMinutos       ; Se resta la hora en minutos del ocaso y del amanecer para saber cuantos minutos hay entre una y otra
+            mov diferenciaMin, ax           ; Se guarda la diferencia en minutos en una variable para poder acceder a ella más adelante
             ret
         Diferencia ENDP
 
+    ; Procedimiento para saber cual es el valor en minutos de una hora 
     ValorHora Proc Far
             mov ax, diferenciaMin
             mov bx, 12
-            call dividir
-            mov valorPorHora, cx
+            call dividir                    ; Se divide la diferencia entre las horas dadas entre 12 para saber cuantos minutos tiene una hora
+            mov valorPorHora, cx            ; Se guarda el resultado de la division en una variable
         ValorHora ENDP
 
 inicio:
@@ -106,6 +107,7 @@ inicio:
     mov     ds,ax
     
     call Diferencia
+    call ValorHora
    
     mov ax, 4c00h           ; Prepara una llamada a la interrupción 21h para terminar el programa.
     int 21h                 ; Llama a la interrupción 21h para terminar el programa.
