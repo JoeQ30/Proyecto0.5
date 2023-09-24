@@ -1,10 +1,5 @@
-include macros.cbc     ; Incluye el archivo de macros predefinidas para el ensamblador.
+include macros23.cbc     ; Incluye el archivo de macros predefinidas para el ensamblador.
 
-
-SSeg Segment 
-    pila db 0
-         db 65535 dup (?)     
-SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
     hAmanecer             dw 5 
@@ -23,15 +18,15 @@ Datos Ends                              ; Finaliza la definición del segmento "
 
 
 Codigo Segment                          ; Define un segmento llamado "Codigo" para el código ensamblador.
-assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segmento CS (código) y DS (datos) a los segmentos definidos.
-    Imprime Proc Far            
+assume cs:Codigo, ds:Datos              ; Asocia los registros de segmento CS (código) y DS (datos) a los segmentos definidos.
+    Imprime Proc Near            
             mov ah, 09h                 ; paso parametro por registro ;mov dx, offset Mensaje
             int 21h
             ret 2*1
         Imprime Endp
 
-    multiplicar Proc Far
-            pop dx
+    multiplicar Proc Near
+            pop bx
             pop ax
             cmp ax, bx                ; Comprobar cuál número es mayor
             jae mayor_o_igual         ; Si son  AX >= BX, salta a mayor_o_igual
@@ -50,7 +45,7 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             ret                       
         multiplicar Endp
 
-    dividir Proc Far
+    dividir Proc Near
             pop bx
             pop ax
             cmp ax, 0                 ; Comprobar si el dividendo (ax) es cero
@@ -82,7 +77,7 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
                 ret                  ; Finaliza el procedimiento y regresa al punto de llamada
         dividir Endp
 
-    convertir Proc Far
+    convertir Proc Near
             ; Convertir la parte decimal (CX) a fracción de una hora en minutos
             mov bx, 60            ; 60 minutos en una hora
             mul bx                ; Multiplicar la parte decimal (CX) por 60 para obtener minutos
@@ -106,7 +101,7 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
         convertir ENDP
 
     ;Procedimiento para sacar cuánto tiempo (en minutos) hay entre el amanecer y el ocaso
-    Diferencia PROC Far
+    Diferencia PROC Near
             ; Convertir horas a minutos y agregar minutos
             mov ax, hOcaso
             push ax                         ; Paso de parametros por pila
@@ -142,7 +137,7 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
         Diferencia ENDP
 
     ; Procedimiento para saber cual es el valor en minutos de una hora 
-    ValorHora Proc Far
+    ValorHora Proc Near
             mov ax, diferenciaMin
             push ax
             mov bx, 12
