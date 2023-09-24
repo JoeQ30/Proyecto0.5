@@ -1,5 +1,3 @@
-;include macros.cbc     ; Incluye el archivo de macros predefinidas para el ensamblador.
-
 
 SSeg Segment 
     pila db 0
@@ -224,7 +222,6 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             mov dl, ':'   ; Cargar el carácter ":"
             int 21h       ; Llamar a la interrupción de DOS para imprimir
 
-
             mov ax, resMinutos
             mov bx, 10      ; En el DX queda las decenas y en el CX las unidades
             call dividir
@@ -239,7 +236,6 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             mov dl, cl    ; Cargar las unidades en dl
             add dl, '0'   ; Convertir las unidades en su equivalente ASCII
             int 21h       ; Llamar a la interrupción de DOS para imprimir
-
 
             ; Imprimir un salto de línea para formatear la salida
             mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
