@@ -18,8 +18,8 @@ Datos Segment               ; Define un segmento llamado "Datos" para almacenar 
     divisor                 dw ?
     resultado               dw ?
     valorHora_Min           dw ?
-    resHora                 dw ?
-    resMinutos              dw ?
+    resHora                 dw 0
+    resMinutos              dw 0
     sumHora                 dw ?
     sumMinutos              dw ?
 Datos Ends                              ; Finaliza la definición del segmento "Datos".
@@ -153,6 +153,28 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             ret
         ValorHora ENDP
 
+    SumaHoras Proc Far
+            mov ax, resHora
+            mov bx, resMinutos
+            add ax, sumHora   ; Suma las horas
+            add bx, sumMinutos  ; Suma los minutos
+
+            ; Verifica si resMinutos es mayor o igual a 60
+            while_loop:
+                cmp bx, 60
+                jl no_carrea    ; Si resMinutos < 60, salta a no_carrea
+
+                ; Si resMinutos >= 60, ajusta las horas y minutos
+                add ax, 1     ; Suma 1 a las horas
+                sub bx, 60 ; Resta 60 a los minutos
+                jmp while_loop     ; Vuelve a verificar si resMinutos >= 60
+
+            no_carrea:
+            mov resHora, ax
+            mov resMinutos, bx
+            ret
+        SumaHoras ENDP
+
 inicio:
     mov     ax, Datos
     mov     ds,ax
@@ -160,6 +182,25 @@ inicio:
     call Diferencia
     call ValorHora
     call convertir
+
+    mov ax, hAmanecer
+    mov resHora, ax
+    mov bx, minAmanecer
+    mov resMinutos, bx
+
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+    call SumaHoras
+ 
     
     mov ax, 4c00h           ; Prepara una llamada a la interrupción 21h para terminar el programa.
     int 21h                 ; Llama a la interrupción 21h para terminar el programa.
