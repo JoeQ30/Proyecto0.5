@@ -22,6 +22,7 @@ Datos Segment               ; Define un segmento llamado "Datos" para almacenar 
     resMinutos              dw 0
     sumHora                 dw ?
     sumMinutos              dw ?
+    enumerador              dw 1
 Datos Ends                              ; Finaliza la definición del segmento "Datos".
 
 
@@ -175,6 +176,62 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             ret
         SumaHoras ENDP
 
+    imprimirHora Proc Far
+            ; Imprimir enumerador
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dx, enumerador ; Cargar el valor de las horas
+            add dx, '0'   ; Convertir el valor de las horas en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+            inc enumerador
+
+            ; Imprimir un parentesis
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, ')'   ; Cargar el carácter espacio
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir un espacio
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, ' '   ; Cargar el carácter espacio
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+            
+            ; Imprimir las horas (resHora)
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dx, resHora ; Cargar el valor de las horas
+            add dx, '0'   ; Convertir el valor de las horas en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir el separador ":" entre horas y minutos
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, ':'   ; Cargar el carácter ":"
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            mov ax, resMinutos
+            mov bx, 10      ; En el DX queda las decenas y en el CX las unidades
+            call dividir
+
+            ; Imprimir las decenas de minutos (resMinutos / 10)
+            mov ah, 2           ; Cargar la función de servicio de DOS para imprimir un carácter
+            add dx, '0'         ; Convertir las decenas en su equivalente ASCII
+            int 21h             ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir las unidades de minutos (resMinutos % 10)
+            mov ah, 2           ; Cargar la función de servicio de DOS para imprimir un carácter
+            add cx, '0'         ; Convertir las unidades en su equivalente ASCII
+            int 21h             ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir un salto de línea para formatear la salida
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, 13    ; Cargar el carácter de retorno de carro (CR)
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, 10    ; Cargar el carácter de nueva línea (LF)
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            ret
+
+        imprimirHora ENDP
+
     GetCommanderLine Proc Near ;
         LongLC EQU 80h  ; Longitud de la linea de comandos ;constante ; macro ; cada que encuentre una palabra lo cambia por esto
         mov bp, sp      ; el sp se lo pongo al bp
@@ -208,18 +265,30 @@ inicio:
     mov resMinutos, bx
 
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
+    call imprimirHora
     call SumaHoras
- 
+    call imprimirHora
+    
     
     mov ax, 4c00h           ; Prepara una llamada a la interrupción 21h para terminar el programa.
     int 21h                 ; Llama a la interrupción 21h para terminar el programa.
