@@ -1,0 +1,47 @@
+;------------------------------------MACROS INICIO-----------------------------------------------
+inicializaDatos macro segmento
+    xor ax, ax    ;ax=0         ;mueve un 0 al ax 
+    mov ax, Datos ;             ;inicializa el ds
+    mov ds, ax ;
+EndM inicializaDatos
+
+imprimir macro param1
+        mov ah, 09h    ;imprimir el string
+        mov dx, offset param1  ;obtiene la direccion de la variable apuntada por ds:nombre
+        int 21h
+EndM imprimir
+
+Terminar Macro 
+    mov ah, 4ch
+    int 21h   ;interrupcion para terminar el programa y volver el control al so
+ENDM Terminar
+
+;####FUCIONES DE PILA####;
+
+ListPush Macro lista
+            IRP i, <lista>;IRP es un iterador que recorre la lista
+            push i ;push es una instruccion que mete un valor a la pila
+            ENDM
+ENDM 
+
+ListPop Macro lista
+            IRP i, <lista>;Misma funcionalidad que Push pero con la funcion POP
+            pop i
+            ENDM
+ENDM 
+
+PushAll Macro
+            ListPush <Ax, Bx, Cx, Dx>;Mete todos los registros a la pila
+ENDM 
+
+PopAll Macro
+            ListPop <Ax, Bx, Cx, Dx>;Saca todos los registros de la pila
+ENDM 
+
+SSeg Segment ;Segmento de la pila, se le pone Pila para identificarlo y accesarlo con su nombre
+    pila db 0;Pila de 64kb
+        db 65535 Dup (?);Reserva 65535 bytes
+SSeg EndS
+
+;####FIN DE FUNCIONES DE PILA####;
+;--------------------------------MACROS FINAL---------------------------
