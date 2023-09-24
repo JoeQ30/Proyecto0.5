@@ -1,4 +1,4 @@
-include macros.cbc     ; Incluye el archivo de macros predefinidas para el ensamblador.
+;include macros.cbc     ; Incluye el archivo de macros predefinidas para el ensamblador.
 
 
 SSeg Segment 
@@ -7,18 +7,21 @@ SSeg Segment
 SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
-    hAmanecer             dw 5 
-    minAmanecer           dw 49
-    AmanecerEnMinutos     dw 0
-    hOcaso                dw 18 
-    minOcaso              dw 22
-    OcasoEnMinutos        dw 0
-    diferenciaMin         dw ?
-    valorHora_Entero      dw ?
-    valorHora_Decimal     dw ?
-    resHora               dw ?
-    resMinutos            dw ?
-    resSegundos           dw ?
+    hAmanecer               dw 5 
+    minAmanecer             dw 49
+    AmanecerEnMinutos       dw 0
+    hOcaso                  dw 18 
+    minOcaso                dw 22
+    OcasoEnMinutos          dw 0
+    diferenciaMin           dw ?
+    dividendo               dw ?
+    divisor                 dw ?
+    resultado               dw ?
+    valorHora_Min           dw ?
+    resHora                 dw ?
+    resMinutos              dw ?
+    sumHora                 dw ?
+    sumMinutos              dw ?
 Datos Ends                              ; Finaliza la definición del segmento "Datos".
 
 
@@ -31,8 +34,8 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
         Imprime Endp
 
     multiplicar Proc Far
-            pop dx
-            pop ax
+            ;pop dx
+            ;pop ax
             cmp ax, bx                ; Comprobar cuál número es mayor
             jae mayor_o_igual         ; Si son  AX >= BX, salta a mayor_o_igual
 
@@ -46,62 +49,57 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
                 add dx, ax            ; Sumar el número mayor a DX
                 loop bucle            ; Decrementar CX y repetir el bucle hasta que CX sea cero
 
-            push dx                   ; Paso el resultado por la pila
+            ;push dx                   ; Paso el resultado por la pila
             ret                       
         multiplicar Endp
 
     dividir Proc Far
-            pop bx
-            pop ax
-            cmp ax, 0                 ; Comprobar si el dividendo (ax) es cero
-            je division_fin           ; Si es cero, el resultado es cero
+            mov dx, ax
+            mov dividendo, dx    ; Guarda una copia del dividendo que quedará intacta
+            mov dx, bx
+            mov divisor, dx    ; Guarda una copia del dividendo que quedará intacta
 
-            cmp bx, 0                 ; Comprobar si el divisor (bx) es cero
-            je division_fin           ; Si es cero, el resultado es indefinido
+            cmp ax, 0            ; Comprobar si el dividendo (ax) es cero
+            je division_fin      ; Si es cero, el resultado es cero
 
-            mov cx, 0                 ; Inicializar CX (parte decimal) a cero
-            mov dx, 0                 ; Inicializar DX (parte entera) a cero
+            cmp bx, 0            ; Comprobar si el divisor (bx) es cero
+            je division_fin      ; Si es cero, el resultado es indefinido
+
+            mov dx, 0            ; Inicializar DX (parte entera) a cero
+            mov cx, 0            ; Inicializar CX (residuo) a cero
 
             division_loop:
-                cmp ax, 0             ; Comprobar si el dividendo es cero
-                je division_fin       ; Si es cero, salir del bucle
- 
-                cmp ax, bx            ; Comprobar si el dividendo es menor que el divisor
-                jl division_fin       ; Si es menor, salir del bucle
- 
-                sub ax, bx            ; Restar el divisor al dividendo
-                inc dx                ; Incrementar la parte entera
-                add cx, 25            ; Sumar 25 a la parte decimal (ajusta según la precisión deseada)
-                jmp division_loop     ; Repetir el bucle
+                cmp ax, 0        ; Comprobar si el dividendo es cero
+                je division_fin  ; Si es cero, salir del bucle
+
+                cmp ax, bx       ; Comprobar si el dividendo es menor que el divisor
+                jl division_fin  ; Si es menor, salir del bucle
+
+                sub ax, bx       ; Restar el divisor al dividendo
+                inc dx           ; Incrementar la parte entera
+                jmp division_loop; Repetir el bucle
 
             division_fin:
-                ; El resultado de la parte decimal (con precisión de dos dígitos) se encuentra en CX
-                push cx
-                ; El resultado de la parte entera se encuentra en DX
-                push dx
-                ret                  ; Finaliza el procedimiento y regresa al punto de llamada
+                mov ax, dx
+                mov resultado, ax     ; Se guarda una copia del resultado en una variable
+
+                ; Calcula el residuo una vez que la división ha terminado
+                mov ax, divisor       ; Mueve el divisor a AX
+                mov bx, dx            ; Mueve resultado a BX
+                call multiplicar      ; Se multipplica el divisor por el resultado de la division
+                sub dividendo, dx     ; Al dividendo se le resta el resultado de la multiplicacion
+                mov cx, dividendo     ; El reciduo se mueve al cx
+                mov dx, resultado     ; El resultado se mueve al dx
+
+            ret               ; Finaliza el procedimiento y regresa al punto de llamada
         dividir Endp
 
     convertir Proc Far
-            ; Convertir la parte decimal (CX) a fracción de una hora en minutos
-            mov bx, 60            ; 60 minutos en una hora
-            mul bx                ; Multiplicar la parte decimal (CX) por 60 para obtener minutos
-            add dx, ax            ; Sumar los minutos a la parte entera (DX)
-
-            ; Convertir la parte entera (DX) a horas
-            mov bx, 60            ; 60 minutos en una hora
-            div bx                ; Dividir los minutos (DX) por 60 para obtener horas
-            mov resHora, dx       ; El resultado en horas está en resHora
-
-            ; El resto en DX ahora representa los minutos después de la conversión
-            mov resMinutos, dx    ; Los minutos restantes están en resMinutos
-
-            ; Convertir los minutos restantes a segundos
-            mov bx, 60            ; 60 segundos en un minuto
-            div bx                ; Dividir los minutos restantes (DX) por 60 para obtener segundos
-            mov resSegundos, dx   ; El resultado en segundos está en resSegundos
-
-            ; En resHora, resMinutos y resSegundos tienes el resultado en formato de hora, minutos y segundos
+            mov ax, valorHora_Min
+            mov bx, 60
+            call dividir
+            mov sumHora, dx             ; Se guarda la parte entera del resultado en una variable
+            mov sumMinutos, cx          ; Se guarda el reciduo en el lado de minutos
             ret
         convertir ENDP
 
@@ -109,12 +107,12 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
     Diferencia PROC Far
             ; Convertir horas a minutos y agregar minutos
             mov ax, hOcaso
-            push ax                         ; Paso de parametros por pila
+            ;push ax                         ; Paso de parametros por pila
             mov bx, 60
-            push bx                         ; Paso de parametros por pila
+            ;push bx                         ; Paso de parametros por pila
             call multiplicar                ; Pasamos la hora del Ocaso a minutos
-            pop dx
-            add sp, 6                       ; Limpia la pila
+            ;pop dx
+            ;add sp, 6                       ; Limpia la pila
   
             xor ax, ax
             add ax, minOcaso
@@ -122,12 +120,12 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             mov OcasoEnMinutos, ax          ; Se suma el resultado de la multiplicacion
             
             mov ax, hAmanecer
-            push ax                         ; Paso de parametros por pila
+            ;push ax                         ; Paso de parametros por pila
             mov bx, 60
-            push bx                         ; Paso de parametros por pila
+            ;push bx                         ; Paso de parametros por pila
             call multiplicar                ; Pasamos la hora del Amanecer a minutos
-            pop dx
-            add sp, 6                       ; Limpia la pila
+            ;pop dx
+            ;add sp, 6                       ; Limpia la pila
 
             xor ax,ax
             add ax,minAmanecer
@@ -144,15 +142,13 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
     ; Procedimiento para saber cual es el valor en minutos de una hora 
     ValorHora Proc Far
             mov ax, diferenciaMin
-            push ax
             mov bx, 12
-            push bx
-            call dividir                    ; Se divide la diferencia entre las horas dadas entre 12 para saber cuantos minutos tiene una hora
-            pop dx                          ; Se saca la parte entera del resultado de la pila y se guarda enel dx
-            mov valorHora_Entero, dx        ; Se guarda la parte entera del resultado en una variable
-            pop cx                          ; Se saca la parte decimal del resultado de la pila y se guarda enel cx
-            mov valorHora_Decimal, cx       ; Se guarda la parte decimal del resultado en una variable
-            add sp, 8                       ; Limpia la pila
+            ;push bx
+            call dividir                     ; Se divide la diferencia entre las horas dadas entre 12 para saber cuantos minutos tiene una hora
+            ;div ax, bx
+            ;pop dx                          ; Se saca la parte entera del resultado de la pila y se guarda enel dx
+            mov valorHora_Min, dx           ; Se guarda la parte entera del resultado en una variable
+            ;add sp, 6                      ; Limpia la pila
            
             ret
         ValorHora ENDP
@@ -160,10 +156,11 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
 inicio:
     mov     ax, Datos
     mov     ds,ax
-    
+
     call Diferencia
     call ValorHora
-   
+    call convertir
+    
     mov ax, 4c00h           ; Prepara una llamada a la interrupción 21h para terminar el programa.
     int 21h                 ; Llama a la interrupción 21h para terminar el programa.
 
