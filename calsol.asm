@@ -7,11 +7,11 @@ SSeg Segment
 SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
-    hAmanecer               dw 5 
-    minAmanecer             dw 49
+    hAmanecer               dw 4 
+    minAmanecer             dw 35
     AmanecerEnMinutos       dw 0
-    hOcaso                  dw 18 
-    minOcaso                dw 22
+    hOcaso                  dw 20 
+    minOcaso                dw 15
     OcasoEnMinutos          dw 0
     diferenciaMin           dw ?
     dividendo               dw ?
@@ -178,9 +178,19 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
 
     imprimirHora Proc Far
             ; Imprimir enumerador
+            mov ax, enumerador
+            mov bx, 10      ; En el DX queda las decenas y en el CX las unidades
+            call dividir
+
+            ; Imprimir las decenas de minutos (enumerador / 10)
             mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
-            mov dx, enumerador ; Cargar el valor de las horas
-            add dx, '0'   ; Convertir el valor de las horas en su equivalente ASCII
+            add dx, '0'   ; Convertir las decenas en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir las unidades de minutos (enumerador  % 10)
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, cl    ; Cargar las unidades en dl
+            add dl, '0'   ; Convertir las unidades en su equivalente ASCII
             int 21h       ; Llamar a la interrupción de DOS para imprimir
             inc enumerador
 
@@ -194,10 +204,19 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             mov dl, ' '   ; Cargar el carácter espacio
             int 21h       ; Llamar a la interrupción de DOS para imprimir
             
-            ; Imprimir las horas (resHora)
+            mov ax, resHora
+            mov bx, 10      ; En el DX queda las decenas y en el CX las unidades
+            call dividir
+
+            ; Imprimir las decenas de minutos (resHora / 10)
             mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
-            mov dx, resHora ; Cargar el valor de las horas
-            add dx, '0'   ; Convertir el valor de las horas en su equivalente ASCII
+            add dx, '0'   ; Convertir las decenas en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
+            ; Imprimir las unidades de minutos (resHora  % 10)
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, cl    ; Cargar las unidades en dl
+            add dl, '0'   ; Convertir las unidades en su equivalente ASCII
             int 21h       ; Llamar a la interrupción de DOS para imprimir
 
             ; Imprimir el separador ":" entre horas y minutos
@@ -205,19 +224,22 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             mov dl, ':'   ; Cargar el carácter ":"
             int 21h       ; Llamar a la interrupción de DOS para imprimir
 
+
             mov ax, resMinutos
             mov bx, 10      ; En el DX queda las decenas y en el CX las unidades
             call dividir
 
             ; Imprimir las decenas de minutos (resMinutos / 10)
-            mov ah, 2           ; Cargar la función de servicio de DOS para imprimir un carácter
-            add dx, '0'         ; Convertir las decenas en su equivalente ASCII
-            int 21h             ; Llamar a la interrupción de DOS para imprimir
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            add dx, '0'   ; Convertir las decenas en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
 
             ; Imprimir las unidades de minutos (resMinutos % 10)
-            mov ah, 2           ; Cargar la función de servicio de DOS para imprimir un carácter
-            add cx, '0'         ; Convertir las unidades en su equivalente ASCII
-            int 21h             ; Llamar a la interrupción de DOS para imprimir
+            mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
+            mov dl, cl    ; Cargar las unidades en dl
+            add dl, '0'   ; Convertir las unidades en su equivalente ASCII
+            int 21h       ; Llamar a la interrupción de DOS para imprimir
+
 
             ; Imprimir un salto de línea para formatear la salida
             mov ah, 2     ; Cargar la función de servicio de DOS para imprimir un carácter
