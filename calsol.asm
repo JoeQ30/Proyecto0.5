@@ -5,6 +5,7 @@ SSeg Segment
 SSeg EndS
 
 Datos Segment               ; Define un segmento llamado "Datos" para almacenar variables y datos.
+    LineCommand db 0FFh dup (?)
     hAmanecer               dw 4 
     minAmanecer             dw 35
     AmanecerEnMinutos       dw 0
@@ -317,7 +318,7 @@ inicio:
     xor si, si
 
     ; Verifica que la entrada comience con '/'
-    ;/03,21/12,23
+    ;/03,21,12,23
     ; Incrementa el índice
     inc si
     ;03,21/12,23
