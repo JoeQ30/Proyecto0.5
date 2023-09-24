@@ -175,9 +175,28 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
             ret
         SumaHoras ENDP
 
+    GetCommanderLine Proc Near ;
+        LongLC EQU 80h  ; Longitud de la linea de comandos ;constante ; macro ; cada que encuentre una palabra lo cambia por esto
+        mov bp, sp      ; el sp se lo pongo al bp
+        mov ax, es      ; es es un registro que contiene el segmento de datos ;
+        mov ds, ax      ; ax al ds ; ds es un registro que contiene el segmento de datos
+        mov di, 2[bp]   ; saco el desplazamiento de la linea de comandos
+        mov ax, 4[bp]   ; saco el segmento de la linea de comandos
+        mov es,ax       ; ax al es ;  el es se queda con el segmento de datos, el es se queda con el segmento de psp
+        xor cx,cx       ; cx a cero
+        mov cl,Byte Ptr Ds:[LongLC] ;Ds tiene el segmento de datos, y el longlc es la longitud de la linea de comandos, se lo pone al cx
+        dec cl          ; decremente el cl en 1, por el espacio que se le da al enter
+        mov si, 2[LongLC]  ; saco el desplazamiento de la linea de comandos
+        cld                 ; limpio el bit de direccion
+        rep Movsb           ; copia el contenido de si a di, cx veces
+        ret 2*2             ;
+    GetCommanderLine Endp
+
 inicio:
+    xor     ax, ax              
     mov     ax, Datos
     mov     ds,ax
+
 
     call Diferencia
     call ValorHora
