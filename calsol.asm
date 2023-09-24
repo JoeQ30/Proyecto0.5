@@ -267,10 +267,96 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
         ret 2*2             ;
     GetCommanderLine Endp
 
+    ObtenerNumero Proc Far
+    xor ax, ax  ; Inicializa ax a cero
+    xor cx, cx  ; Inicializa cx a cero
+
+    ; Bucle para convertir el número
+    convertir_numero:
+
+        ; Convierte el caracter a número
+        mov bl, LineCommand[si]
+        sub bl, '0'
+        
+        
+        mov bx, 10
+        mul bx
+        ; Suma el número al total
+        add ax, bx
+
+        ; Incrementa el índice
+        inc si
+
+        ; Verifica si es el final de la cadena
+        cmp LineCommand[si], ','
+        jne convertir_numero
+
+        ; Retorna el número
+        ret
+
+
+    no_es_numero:
+        ret
+
+    ObtenerNumero Endp
+
 inicio:
     xor     ax, ax              
     mov     ax, Datos
     mov     ds,ax
+
+    push ds
+    push es
+    mov ax, Seg LineCommand
+    push ax
+    lea ax, LineCommand
+    push ax
+    call GetCommanderLine
+    pop es
+    pop ds
+    xor si, si
+
+    ; Verifica que la entrada comience con '/'
+    ;/03,21/12,23
+    ; Incrementa el índice
+    inc si
+    ;03,21/12,23
+
+    ; Obtiene la hora del amanecer
+    call ObtenerNumero
+    mov hAmanecer, ax
+    ;,21/12,23
+
+    ; Incrementa el índice
+    inc si
+    ;21,12,23
+
+    ; Obtiene los minutos del amanecer
+    call ObtenerNumero
+    mov minAmanecer, ax
+    ;,12,23
+
+    ; Verifica que la entrada contenga '/'
+
+    ; Incrementa el índice
+    inc si
+    ;12,23
+
+    ; Obtiene la hora del ocaso
+    call ObtenerNumero
+    mov hOcaso, ax
+    ;,23
+
+    ; Verifica que la entrada contenga una coma
+
+    ; Incrementa el índice
+    inc si
+    ;23
+
+    ; Obtiene los minutos del ocaso
+    call ObtenerNumero
+    mov minOcaso, ax
+    ;
 
 
     call Diferencia
