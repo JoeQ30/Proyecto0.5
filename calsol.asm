@@ -272,33 +272,21 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
     xor ax, ax  ; Inicializa ax a cero
     xor cx, cx  ; Inicializa cx a cero
 
-    ; Bucle para convertir el número
-    convertir_numero:
-
-        ; Convierte el caracter a número
-        mov bl, LineCommand[si]
-        sub bl, '0'
+        ; Bucle para obtener el número
+        bucleConv:
+            mov bx, 10  ; Cargar el divisor
+            mul bx      ; Multiplicar ax por bx
+            mov bx, si  ; Cargar el índice
+            add bx, LineCommand ; Sumar el índice a la dirección de inicio de la línea de comandos
+            mov bl, [bx] ; Cargar el caracter de la línea de comandos
+            sub bl, '0' ; Convertir el caracter a su equivalente numérico
+            add ax, bx  ; Sumar el caracter a ax
+            inc si      ; Incrementar el índice
+            cmp bl, 0dh ; Comprobar si el caracter es un retorno de carro
+            jne bucleConv   ; Si no es un retorno de carro, repetir el bucle
         
-        
-        mov bx, 10
-        mul bx
-        ; Suma el número al total
-        add ax, bx
-
-        ; Incrementa el índice
-        inc si
-
-        ; Verifica si es el final de la cadena
-        cmp LineCommand[si], ','
-        jne convertir_numero
-
-        ; Retorna el número
+        ; Devuelve el número en ax
         ret
-
-
-    no_es_numero:
-        ret
-
     ObtenerNumero Endp
 
 inicio:
