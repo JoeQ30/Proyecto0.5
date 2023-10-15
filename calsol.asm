@@ -251,7 +251,7 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
 
         imprimirHora ENDP
 
-    GetCommanderLine Proc Near ;
+        GetCommanderLine Proc Near ;
         LongLC EQU 80h  ; Longitud de la linea de comandos ;constante ; macro ; cada que encuentre una palabra lo cambia por esto
         mov bp, sp      ; el sp se lo pongo al bp
         mov ax, es      ; es es un registro que contiene el segmento de datos ;
@@ -269,23 +269,25 @@ assume cs:Codigo, ds:Datos, SS:SSeg              ; Asocia los registros de segme
     GetCommanderLine Endp
 
     ObtenerNumero Proc Far
-    xor ax, ax  ; Inicializa ax a cero
-    xor cx, cx  ; Inicializa cx a cero
+        xor ax, ax      ; Inicializa ax a cero
+        xor cx, cx      ; Inicializa cx a cero
+        mov cl, [si]    ; Carga el primer caracter en cl
 
-        ; Bucle para obtener el número
-        bucleConv:
-            mov bx, 10  ; Cargar el divisor
-            mul bx      ; Multiplicar ax por bx
-            mov bx, si  ; Cargar el índice
-            add bx, LineCommand ; Sumar el índice a la dirección de inicio de la línea de comandos
-            mov bl, [bx] ; Cargar el caracter de la línea de comandos
-            sub bl, '0' ; Convertir el caracter a su equivalente numérico
-            add ax, bx  ; Sumar el caracter a ax
-            inc si      ; Incrementar el índice
-            cmp bl, 0dh ; Comprobar si el caracter es un retorno de carro
-            jne bucleConv   ; Si no es un retorno de carro, repetir el bucle
-        
-        ; Devuelve el número en ax
+        convertir_numero:
+            cmp cl, '0'     ; Compara el caracter con '0'
+            jb no_es_numero ; Si es menor que '0', no es un número
+            cmp cl, '9'     ; Compara el caracter con '9'
+            ja no_es_numero ; Si es mayor que '9', no es un número
+            sub cl, '0'     ; Convierte el caracter en su valor numérico
+            mov bx, 10      ; Carga el valor 10 en bx
+            mul bx          ; Multiplica ax por bx
+            add ax, cx      ; Suma cx a ax
+            mov cx, ax      ; Guarda el resultado en cx
+            inc si          ; Avanza al siguiente caracter
+            mov cl, [si]    ; Carga el siguiente caracter en cl
+            jmp convertir_numero
+
+    no_es_numero:
         ret
     ObtenerNumero Endp
 
